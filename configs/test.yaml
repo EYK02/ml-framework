@@ -1,0 +1,9 @@
+run_name: test_run
+run_dir: runs/
+
+dataset: dummy
+model: dummy
+trainer: dummy
+
+attack:
+  name: dummy

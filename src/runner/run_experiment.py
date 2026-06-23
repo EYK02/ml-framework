@@ -1,13 +1,10 @@
 import argparse
 import yaml
 
-
-import src.runner.register_components
+import src.runner.register_components 
 
 from src.core.experiment import Experiment
 from src.core.registry import registry
-
-from src.runner.register_defaults import *
 
 
 def load_config(path):

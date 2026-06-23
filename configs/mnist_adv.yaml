@@ -1,0 +1,17 @@
+run_name: mnist_adv
+run_dir: runs/
+
+dataset: mnist
+model: cnn
+trainer: adversarial
+
+training:
+  lr: 0.001
+  epochs: 2
+
+attack:
+  name: fgsm
+  eps: 0.25
+
+adversarial:
+  enabled: true

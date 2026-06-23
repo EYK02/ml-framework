@@ -1,6 +1,4 @@
-from src.core.base import BaseAttack
-
-
-class DummyAttack(BaseAttack):
+class BaseAttack:
     def perturb(self, model, x, y):
-        pass
+        """Return adversarially perturbed x"""
+        return x

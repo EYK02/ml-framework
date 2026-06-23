@@ -9,23 +9,20 @@ class Experiment:
         self.ctx = None
 
     def build(self):
-        # dataset
         dataset_cls = self.registry.datasets[self.config["dataset"]]
         dataset = dataset_cls()
 
-        # model
         model_cls = self.registry.models[self.config["model"]]
         model = model_cls()
 
-        # trainer
         trainer_cls = self.registry.trainers[self.config["trainer"]]
         trainer = trainer_cls()
 
-        # attack (optional)
         attack = None
         if "attack" in self.config:
-            attack_cls = self.registry.attacks[self.config["attack"]["name"]]
-            attack = attack_cls()
+            attack_cfg = self.config["attack"]
+            attack_cls = self.registry.attacks[attack_cfg["name"]]
+            attack = attack_cls(**{k: v for k, v in attack_cfg.items() if k != "name"})
 
         self.ctx = RunContext(
             run_name=self.config["run_name"],
@@ -40,3 +37,5 @@ class Experiment:
     def run(self):
         self.build()
         self.ctx.summary()
+
+        self.ctx.trainer.train(self.ctx)

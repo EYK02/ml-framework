@@ -1,6 +1,9 @@
 import argparse
 import yaml
 
+
+import src.runner.register_components
+
 from src.core.experiment import Experiment
 from src.core.registry import registry
 

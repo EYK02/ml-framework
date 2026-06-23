@@ -1,0 +1,10 @@
+run_name: mnist_cnn
+run_dir: runs/
+
+dataset: mnist
+model: cnn
+trainer: standard
+
+training:
+  lr: 0.001
+  epochs: 2

@@ -2,6 +2,7 @@ from pathlib import Path
 
 from src.core.runtime import RunContext
 from src.core.adversarial_wrapper import AdversarialDataWrapper
+from src.evaluation.evaluator import Evaluator
 
 
 class Experiment:
@@ -18,6 +19,7 @@ class Experiment:
         dataset = dataset_cls()
         model = model_cls()
         trainer = trainer_cls()
+        evaluator = Evaluator()
 
 
         attack = None
@@ -51,17 +53,35 @@ class Experiment:
             dataset=dataset,
             trainer=trainer,
             attack=attack,
+            evaluator=evaluator,
         )
 
         self.ctx.train_loader = train_loader
     
 
     def run(self):
-        # Build experiment graph
         self.build()
 
-        # Optional: debug print
         self.ctx.summary()
 
-        # Execute training
         self.ctx.trainer.train(self.ctx)
+
+        clean_results = self.ctx.evaluator.evaluate_clean(self.ctx)
+
+        print("\n=== Evaluation ===")
+        print(
+            f"Clean Accuracy: "
+            f"{clean_results['accuracy']:.2f}%"
+        )
+
+        if self.ctx.attack is not None:
+            adv_results = (
+                self.ctx.evaluator.evaluate_adversarial(self.ctx)
+            )
+
+            print(
+                f"Adversarial Accuracy: "
+                f"{adv_results['accuracy']:.2f}%"
+            )
+
+        print("==================")

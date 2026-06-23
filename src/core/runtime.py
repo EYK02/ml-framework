@@ -13,6 +13,7 @@ class RunContext:
     dataset: Any = None
     trainer: Any = None
     attack: Any = None
+    evaluator: Any = None
 
     def summary(self):
         print("\n=== RUN CONTEXT ===")
@@ -22,4 +23,5 @@ class RunContext:
         print(f"Dataset: {type(self.dataset).__name__ if self.dataset else None}")
         print(f"Trainer: {type(self.trainer).__name__ if self.trainer else None}")
         print(f"Attack: {type(self.attack).__name__ if self.attack else None}")
+        print(f"Evaluator: {type(self.evaluator).__name__ if self.evaluator else None}")
         print("===================\n")

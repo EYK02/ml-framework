@@ -1,8 +1,10 @@
+import datetime
 from pathlib import Path
 
 from src.core.runtime import RunContext
 from src.core.adversarial_wrapper import AdversarialDataWrapper
 from src.evaluation.evaluator import Evaluator
+from src.tracking.result_tracker import ResultTracker
 
 
 class Experiment:
@@ -20,6 +22,7 @@ class Experiment:
         model = model_cls()
         trainer = trainer_cls()
         evaluator = Evaluator()
+        tracker = ResultTracker(run_path)
 
 
         attack = None
@@ -44,16 +47,31 @@ class Experiment:
                 enabled=True
             )
 
+        run_root = Path(
+            self.config.get("run_dir", "runs")
+        )
+
+        run_name = self.config.get(
+            "run_name",
+            "unnamed_run"
+        )
+        
+        timestamp = datetime.now().strftime(
+            "%Y%m%d_%H%M%S"
+        )
+
+        run_path = run_root / f"{timestamp}_{run_name}"
 
         self.ctx = RunContext(
-            run_name=self.config.get("run_name", "unnamed_run"),
-            run_dir=Path(self.config.get("run_dir", "runs/")),
+            run_name=run_name,
+            run_dir=run_path,
             config=self.config,
             model=model,
             dataset=dataset,
             trainer=trainer,
             attack=attack,
             evaluator=evaluator,
+            tracker=tracker,
         )
 
         self.ctx.train_loader = train_loader
@@ -62,26 +80,52 @@ class Experiment:
     def run(self):
         self.build()
 
+        self.ctx.tracker.save_config(
+            self.config
+        )
+
         self.ctx.summary()
 
         self.ctx.trainer.train(self.ctx)
 
-        clean_results = self.ctx.evaluator.evaluate_clean(self.ctx)
+        results = {}
 
-        print("\n=== Evaluation ===")
-        print(
-            f"Clean Accuracy: "
-            f"{clean_results['accuracy']:.2f}%"
+        clean_results = (
+            self.ctx.evaluator.evaluate_clean(self.ctx)
         )
+
+        results["clean"] = clean_results
 
         if self.ctx.attack is not None:
             adv_results = (
                 self.ctx.evaluator.evaluate_adversarial(self.ctx)
             )
 
+            results["adversarial"] = adv_results
+
+        self.ctx.tracker.save_metrics(results)
+
+        summary = {
+            "run_name": self.ctx.run_name,
+            "model": type(self.ctx.model).__name__,
+            "trainer": type(self.ctx.trainer).__name__,
+            "attack": (
+                type(self.ctx.attack).__name__
+                if self.ctx.attack is not None
+                else None
+            ),
+        }
+
+        self.ctx.tracker.save_summary(summary)
+
+        print("\n=== Evaluation ===")
+        print(
+            f"Clean Accuracy: "
+            f"{results['clean']['accuracy']:.2f}%"
+        )
+
+        if "adversarial" in results:
             print(
                 f"Adversarial Accuracy: "
-                f"{adv_results['accuracy']:.2f}%"
+                f"{results['adversarial']['accuracy']:.2f}%"
             )
-
-        print("==================")

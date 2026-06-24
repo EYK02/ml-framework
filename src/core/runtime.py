@@ -14,6 +14,7 @@ class RunContext:
     trainer: Any = None
     attack: Any = None
     evaluator: Any = None
+    tracker: Any = None
 
     def summary(self):
         print("\n=== RUN CONTEXT ===")

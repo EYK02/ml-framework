@@ -6,6 +6,8 @@ from src.evaluation.evaluator import Evaluator
 from src.tracking.result_tracker import ResultTracker
 from src.tracking.checkpoint_manager import CheckpointManager
 
+from src.utils.reproducibility import set_seed
+
 
 class Experiment:
     def __init__(self, config, registry):
@@ -75,6 +77,7 @@ class Experiment:
     
 
     def run(self):
+        set_seed(self.config.get("seed", 42))
         self.build()
 
         self.ctx.tracker.save_config(

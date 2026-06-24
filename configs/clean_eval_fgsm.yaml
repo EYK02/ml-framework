@@ -1,0 +1,8 @@
+dataset: mnist 
+model: cnn
+trainer: standard
+attack:
+  name: fgsm
+  eps: 0.25
+adversarial:
+  enabled: false

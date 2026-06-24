@@ -13,7 +13,7 @@ class AdversarialTrainer:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         model = ctx.model.to(device)
-        train_loader = ctx.train_loader  # IMPORTANT: from Experiment wiring
+        train_loader = ctx.train_loader
 
         optimizer = torch.optim.Adam(
             model.parameters(),
@@ -28,16 +28,23 @@ class AdversarialTrainer:
             total_loss = 0.0
 
             for data, target in train_loader:
-                data, target = data.to(device), target.to(device)
+                data = data.to(device)
+                target = target.to(device)
+
+                adv_data = ctx.attack.perturb(
+                    model,
+                    data,
+                    target,
+                )
 
                 optimizer.zero_grad()
 
-                output = model(data)
+                output = model(adv_data)
+
                 loss = self.criterion(output, target)
 
                 loss.backward()
-                optimizer.step()
 
-                total_loss += loss.item()
+                optimizer.step()
 
             print(f"[ADV Epoch {epoch}] loss={total_loss / len(train_loader):.4f}")

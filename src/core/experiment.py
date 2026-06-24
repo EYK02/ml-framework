@@ -2,7 +2,6 @@ from datetime import datetime
 from pathlib import Path
 
 from src.core.runtime import RunContext
-from src.core.adversarial_wrapper import AdversarialDataWrapper
 from src.evaluation.evaluator import Evaluator
 from src.tracking.result_tracker import ResultTracker
 from src.tracking.checkpoint_manager import CheckpointManager
@@ -39,14 +38,6 @@ class Experiment:
 
         train_loader = dataset.get_train()
 
-        if adv_enabled:
-            train_loader = AdversarialDataWrapper(
-                train_loader,
-                attack,
-                model,
-                enabled=True
-            )
-
         run_root = Path(
             self.config.get("run_dir", "runs")
         )
@@ -78,6 +69,8 @@ class Experiment:
             checkpoint_manager=checkpoint_manager,
         )
 
+        self.ctx.attack = attack
+        self.ctx.adversarial_enabled = adv_enabled
         self.ctx.train_loader = train_loader
     
 

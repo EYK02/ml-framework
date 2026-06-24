@@ -1,10 +1,10 @@
-import datetime
+from datetime import datetime
 from pathlib import Path
 
-from src.core.runtime import RunContext
-from src.core.adversarial_wrapper import AdversarialDataWrapper
-from src.evaluation.evaluator import Evaluator
-from src.tracking.result_tracker import ResultTracker
+from core.runtime import RunContext
+from core.adversarial_wrapper import AdversarialDataWrapper
+from evaluation.evaluator import Evaluator
+from tracking.result_tracker import ResultTracker
 
 
 class Experiment:
@@ -22,7 +22,6 @@ class Experiment:
         model = model_cls()
         trainer = trainer_cls()
         evaluator = Evaluator()
-        tracker = ResultTracker(run_path)
 
 
         attack = None
@@ -61,6 +60,7 @@ class Experiment:
         )
 
         run_path = run_root / f"{timestamp}_{run_name}"
+        tracker = ResultTracker(run_path)
 
         self.ctx = RunContext(
             run_name=run_name,

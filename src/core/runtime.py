@@ -9,12 +9,14 @@ class RunContext:
     run_dir: Path
     config: Dict[str, Any]
 
-    model: Any = None
-    dataset: Any = None
-    trainer: Any = None
-    attack: Any = None
-    evaluator: Any = None
-    tracker: Any = None
+    model:              object | None = None
+    dataset:            object | None = None
+    trainer:            object | None = None
+    attack:             object | None = None
+    evaluator:          object | None = None
+    tracker:            object | None = None
+
+    checkpoint_manager: object | None = None
 
     def summary(self):
         print("\n=== RUN CONTEXT ===")

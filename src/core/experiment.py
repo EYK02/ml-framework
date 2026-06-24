@@ -1,10 +1,11 @@
 from datetime import datetime
 from pathlib import Path
 
-from core.runtime import RunContext
-from core.adversarial_wrapper import AdversarialDataWrapper
-from evaluation.evaluator import Evaluator
-from tracking.result_tracker import ResultTracker
+from src.core.runtime import RunContext
+from src.core.adversarial_wrapper import AdversarialDataWrapper
+from src.evaluation.evaluator import Evaluator
+from src.tracking.result_tracker import ResultTracker
+from src.tracking.checkpoint_manager import CheckpointManager
 
 
 class Experiment:
@@ -60,7 +61,9 @@ class Experiment:
         )
 
         run_path = run_root / f"{timestamp}_{run_name}"
+
         tracker = ResultTracker(run_path)
+        checkpoint_manager = CheckpointManager(run_path)
 
         self.ctx = RunContext(
             run_name=run_name,
@@ -72,6 +75,7 @@ class Experiment:
             attack=attack,
             evaluator=evaluator,
             tracker=tracker,
+            checkpoint_manager=checkpoint_manager,
         )
 
         self.ctx.train_loader = train_loader
@@ -87,6 +91,10 @@ class Experiment:
         self.ctx.summary()
 
         self.ctx.trainer.train(self.ctx)
+
+        self.ctx.checkpoint_manager.save_final(
+            self.ctx.model
+        )
 
         results = {}
 
